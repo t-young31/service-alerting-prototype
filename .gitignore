@@ -1,0 +1,12 @@
+# IntelliJ
+.idea/
+# Python
+build/
+*.egg-info/
+*.pyc
+# Secrets
+*.env*
+!.env.sample
+# Terraform
+.terraform/
+*.tfstate*
