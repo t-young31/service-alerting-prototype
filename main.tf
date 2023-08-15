@@ -45,6 +45,9 @@ resource "opsgenie_team" "test" {
   name        = "test"
   description = "This is a test team with all the users"
 
+  # Required to Define custom escalation and routing
+  delete_default_resources = true
+
   dynamic "member" {
     for_each = local.test_team_members
     content {
@@ -54,8 +57,97 @@ resource "opsgenie_team" "test" {
   }
 }
 
-# TODO: escalation route, policy, schedule
+resource "opsgenie_schedule" "default" {
+  name          = "default_schedule"
+  description   = "Schedule test"
+  timezone      = local.config.timezone
+  enabled       = true
+  owner_team_id = opsgenie_team.test.id
+}
 
+resource "opsgenie_schedule_rotation" "test" {
+  schedule_id = opsgenie_schedule.default.id
+  name        = "rotation"
+  start_date  = "2019-06-18T00:00:00Z"
+  type        = "hourly"
+  length      = 6
+
+  dynamic "participant" {
+    for_each = local.test_team_members
+    content {
+      id   = participant.value.id
+      type = "user"
+    }
+  }
+
+  time_restriction {
+    type = "time-of-day"
+
+    restriction {
+      start_hour = 9
+      start_min  = 0
+      end_hour   = 17
+      end_min    = 0
+    }
+  }
+}
+
+resource "opsgenie_escalation" "test" {
+  name          = "default_escalation"
+  owner_team_id = opsgenie_team.test.id
+
+  rules {
+    condition   = "if-not-acked"
+    notify_type = "default"
+    delay       = 0
+
+    recipient {
+      type = "schedule"
+      id   = opsgenie_schedule.default.id
+    }
+  }
+
+  rules {
+    condition   = "if-not-acked"
+    notify_type = "next"
+    delay       = 5 # minutes
+
+    recipient {
+      type = "schedule"
+      id   = opsgenie_schedule.default.id
+    }
+  }
+
+  rules {
+    condition   = "if-not-acked"
+    notify_type = "default"
+    delay       = 10 # minutes
+
+    recipient {
+      type = "user"
+      id   = data.opsgenie_user.admin.id
+    }
+  }
+
+}
+
+resource "opsgenie_team_routing_rule" "test" {
+  # See: https://registry.terraform.io/providers/opsgenie/opsgenie/latest/docs/resources/team_routing_rule
+
+  name     = "test_routing"
+  team_id  = opsgenie_team.test.id
+  order    = 0
+  timezone = local.config.timezone
+
+  criteria {
+    type = "match-all"
+  }
+
+  notify {
+    id   = opsgenie_escalation.test.id
+    type = "escalation"
+  }
+}
 
 resource "opsgenie_service" "toy" {
   name        = "toy"
@@ -67,9 +159,9 @@ resource "opsgenie_heartbeat" "toy_service" {
   name           = var.opsgenie_heartbeat_name
   description    = "Heartbeat for toy service"
   interval_unit  = "minutes"
-  interval       = 10
+  interval       = 1
   enabled        = true
-  alert_message  = "Alert!"
+  alert_message  = "Missing heartbeat for toy service"
   alert_priority = "P3"
   owner_team_id  = opsgenie_team.test.id
 }
