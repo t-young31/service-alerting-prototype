@@ -15,4 +15,5 @@ echo "Exporting variables in ${env_filepath} file into environment"
 read -ra args < <(grep -v '^#' "$env_filepath" | xargs)
 export "${args[@]}"
 
-export TF_VAR_opsgenie_api_url="$OPSGENIE_API_URL"
+export TF_VAR_opsgenie_api_url="$OPSGENIE_API_URL" \
+  TF_VAR_opsgenie_heartbeat_name="$OPSGENIE_HEARTBEAT_NAME"

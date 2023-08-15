@@ -1,0 +1,13 @@
+# This configuration file could be checked into git and contain the
+# customisations of OpsGenie. It should *not* be pushed to a public
+# repository nor contain secrets
+---
+# See: https://support.atlassian.com/opsgenie/docs/supported-timezone-ids/
+timezone: Europe/London
+
+# Admin email address that owns the OpsGenie account
+admin_email: admin@example.com
+
+users:
+  - email: test1@example.com
+    name: Test1 User

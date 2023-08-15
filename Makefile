@@ -1,9 +1,12 @@
 SHELL := /bin/bash
 .PHONY: *
 
-service:
-	./toy-service/entrypoint.sh
+all:
+	echo "Please make a specific target"; exit 1
 
+toy-service:
+	. init.sh && \
+	./toy-service/entrypoint.sh
 
 opsgenie:
 	. init.sh && \

@@ -10,3 +10,6 @@ build/
 # Terraform
 .terraform/
 *.tfstate*
+# Configuration
+config.yaml
+!config.sample.yaml
