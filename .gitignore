@@ -1,6 +1,7 @@
 # IntelliJ
 .idea/
 # Python
+.venv/
 build/
 *.egg-info/
 *.pyc
