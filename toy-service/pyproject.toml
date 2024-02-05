@@ -12,8 +12,7 @@ classifiers = [
 dependencies = [
     "click==8.1.*",
     "requests==2.31.*",
-    "fastapi==0.100.*",
-    "starlette==0.27.*",
+    "fastapi==0.109.1",
     "uvicorn==0.23.*"
 ]
 
